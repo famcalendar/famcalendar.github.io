@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family Schedule</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF2EC;
+  --ink:#22301F;
+  --muted:#5C6B57;
+  --pine:#3D6B4A;
+  --pine-deep:#2C5238;
+  --line:#D5DCCF;
+  --card:#FFFFFF;
+  --danger:#A83A2E;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:"Bricolage Grotesque",system-ui,-apple-system,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+}
+button{font:inherit;cursor:pointer}
+
+/* ---------- header ---------- */
+header{
+  max-width:1180px;margin:0 auto;padding:20px 16px 8px;
+  display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+}
+h1{font-size:clamp(26px,4vw,38px);font-weight:800;margin:0;letter-spacing:-.02em}
+#weekLabel{font-size:clamp(15px,2vw,18px);color:var(--muted);font-weight:600}
+.spacer{flex:1}
+.nav{display:flex;gap:6px}
+.nav button, .btn{
+  border:1.5px solid var(--ink);background:var(--card);color:var(--ink);
+  border-radius:var(--radius);padding:8px 14px;font-weight:600;
+}
+.nav button:hover,.btn:hover{background:var(--ink);color:var(--paper)}
+.btn.primary{background:var(--pine);border-color:var(--pine);color:#fff}
+.btn.primary:hover{background:var(--pine-deep);border-color:var(--pine-deep)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid var(--pine);outline-offset:2px}
+
+/* ---------- member chips ---------- */
+#chips{
+  max-width:1180px;margin:0 auto;padding:6px 16px 14px;
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  border:1.5px solid var(--line);border-radius:999px;
+  background:var(--card);padding:5px 12px 5px 8px;font-weight:600;font-size:14px;
+}
+.chip .dot{width:12px;height:12px;border-radius:50%}
+.chip.off{opacity:.38}
+.chip.manage{border-style:dashed;color:var(--muted)}
+
+/* ---------- week board ---------- */
+#board{
+  max-width:1180px;margin:0 auto 40px;padding:0 16px;
+  display:grid;grid-template-columns:repeat(7,1fr);gap:10px;
+}
+.day{
+  background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);
+  min-height:260px;display:flex;flex-direction:column;overflow:hidden;
+}
+.day.today{border-color:var(--pine);border-width:2px;background:#F7FBF5}
+.dayhead{
+  padding:10px 12px 6px;display:flex;align-items:baseline;gap:8px;
+  border-bottom:1.5px solid var(--line);
+}
+.day.today .dayhead{border-color:var(--pine)}
+.dow{font-size:13px;font-weight:600;color:var(--muted)}
+.day.today .dow{color:var(--pine-deep)}
+.dnum{font-size:30px;font-weight:800;line-height:1;margin-left:auto}
+.day.today .dnum{color:var(--pine-deep)}
+.evlist{padding:8px;display:flex;flex-direction:column;gap:6px;flex:1}
+.ev{
+  text-align:left;border:none;background:#F2F4EF;border-radius:7px;
+  padding:6px 8px 6px 10px;position:relative;line-height:1.3;width:100%;
+}
+.ev::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+  border-radius:7px 0 0 7px;background:var(--bar,#9AA894);
+}
+.ev:hover{background:#E7EBE2}
+.ev .t{font-size:12px;color:var(--muted);font-weight:600}
+.ev .n{font-size:14px;font-weight:600;word-break:break-word}
+.addday{
+  margin:0 8px 8px;border:1.5px dashed var(--line);border-radius:7px;background:none;
+  color:var(--muted);padding:5px;font-size:13px;font-weight:600;
+}
+.addday:hover{border-color:var(--pine);color:var(--pine-deep)}
+#empty{max-width:1180px;margin:0 auto;padding:8px 16px 24px;color:var(--muted)}
+
+/* ---------- dialogs ---------- */
+dialog{
+  border:2px solid var(--ink);border-radius:14px;padding:0;
+  width:min(440px,92vw);background:var(--card);color:var(--ink);
+}
+dialog::backdrop{background:rgba(34,48,31,.45)}
+.dbody{padding:20px}
+dialog h2{margin:0 0 14px;font-size:22px;font-weight:800}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:12px 0 4px}
+input,select,textarea{
+  width:100%;font:inherit;padding:9px 10px;border:1.5px solid var(--line);
+  border-radius:8px;background:#FCFDFB;color:var(--ink);
+}
+textarea{resize:vertical;min-height:60px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;gap:8px;margin-top:20px}
+.actions .spacer{flex:1}
+.btn.danger{border-color:var(--danger);color:var(--danger);background:var(--card)}
+.btn.danger:hover{background:var(--danger);color:#fff}
+.swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0}
+.sw.sel{border-color:var(--ink)}
+.mrow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.mrow .dot{width:14px;height:14px;border-radius:50%}
+.mrow .nm{flex:1;font-weight:600}
+.mrow button{border:none;background:none;color:var(--danger);font-weight:600;font-size:13px}
+#err{color:var(--danger);font-size:13px;font-weight:600;margin-top:10px;min-height:1em}
+
+/* ---------- passcode overlay ---------- */
+#lock{
+  position:fixed;inset:0;background:var(--paper);display:none;
+  align-items:center;justify-content:center;z-index:50;
+}
+#lock.on{display:flex}
+#lock form{
+  background:var(--card);border:2px solid var(--ink);border-radius:14px;
+  padding:28px;width:min(340px,90vw);
+}
+#lock h2{margin:0 0 6px;font-weight:800}
+#lock p{margin:0 0 14px;color:var(--muted);font-size:14px}
+
+/* ---------- mobile: stack the week as an agenda ---------- */
+@media (max-width:760px){
+  #board{grid-template-columns:1fr;gap:8px}
+  .day{min-height:0}
+  .evlist:empty + .addday{margin-top:8px}
+  .dnum{font-size:22px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .ev,.chip,.btn,.nav button{transition:background .12s,color .12s,opacity .12s}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Family Schedule</h1>
+  <span id="weekLabel"></span>
+  <span class="spacer"></span>
+  <div class="nav">
+    <button id="prevBtn" aria-label="Previous week">‹</button>
+    <button id="todayBtn">Today</button>
+    <button id="nextBtn" aria-label="Next week">›</button>
+  </div>
+  <button class="btn primary" id="addBtn">Add event</button>
+</header>
+
+<div id="chips"></div>
+<div id="board"></div>
+<p id="empty" hidden>Nothing on the calendar this week. Tap a day or “Add event” to put something on it.</p>
+
+<!-- Event dialog -->
+<dialog id="eventDlg">
+  <form class="dbody" id="eventForm" method="dialog">
+    <h2 id="eventDlgTitle">Add event</h2>
+    <label for="fTitle">What</label>
+    <input id="fTitle" required maxlength="120" placeholder="Soccer practice">
+    <label for="fWho">Who</label>
+    <select id="fWho"></select>
+    <label for="fDate">Date</label>
+    <input id="fDate" type="date" required>
+    <div class="row2">
+      <div><label for="fStart">Starts</label><input id="fStart" type="time"></div>
+      <div><label for="fEnd">Ends</label><input id="fEnd" type="time"></div>
+    </div>
+    <label for="fNotes">Notes</label>
+    <textarea id="fNotes" maxlength="500" placeholder="Bring water bottle"></textarea>
+    <div id="err"></div>
+    <div class="actions">
+      <button type="button" class="btn danger" id="delBtn" hidden>Delete</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="cancelBtn">Cancel</button>
+      <button type="submit" class="btn primary" id="saveBtn">Save event</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Members dialog -->
+<dialog id="memberDlg">
+  <div class="dbody">
+    <h2>Family members</h2>
+    <div id="mlist"></div>
+    <label for="mName">Add someone</label>
+    <input id="mName" maxlength="40" placeholder="Name">
+    <div class="swatches" id="swatches"></div>
+    <div class="actions">
+      <span class="spacer"></span>
+      <button type="button" class="btn" id="mCloseBtn">Close</button>
+      <button type="button" class="btn primary" id="mAddBtn">Add member</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Passcode overlay -->
+<div id="lock">
+  <form id="lockForm">
+    <h2>Family Schedule</h2>
+    <p>Enter the family passcode to open the calendar.</p>
+    <input id="lockPass" type="password" autocomplete="current-password" placeholder="Passcode">
+    <div id="lockErr" style="color:var(--danger);font-size:13px;font-weight:600;min-height:1.2em;margin-top:8px"></div>
+    <div class="actions"><span class="spacer"></span>
+      <button class="btn primary" type="submit">Open</button>
+    </div>
+  </form>
+</div>
+
+<script>
+const COLORS = ['#D9541E','#2E6FA8','#C99A2C','#7A5CA8','#3E8F63','#C05286','#5A7D9A','#8C5A3C'];
+const DOW = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let members = [], events = [], hidden = new Set(), editingId = null;
+let weekStart = startOfWeek(new Date());
+
+const $ = id => document.getElementById(id);
+
+function startOfWeek(d){ const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - x.getDay()); return x; }
+function ymd(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function fmt12(t){ if(!t) return ''; let [h,m] = t.split(':').map(Number); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12; return h + (m ? ':' + String(m).padStart(2,'0') : '') + ap; }
+
+async function api(url, opts){
+  const r = await fetch(url, opts ? Object.assign({headers:{'Content-Type':'application/json'}}, opts) : undefined);
+  if (r.status === 401) { $('lock').classList.add('on'); throw new Error('locked'); }
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || 'Request failed');
+  return j;
+}
+
+// ---------- rendering ----------
+function render(){
+  const days = [...Array(7)].map((_,i)=>{ const d = new Date(weekStart); d.setDate(d.getDate()+i); return d; });
+  const a = days[0], b = days[6];
+  $('weekLabel').textContent = a.getMonth() === b.getMonth()
+    ? `${MON[a.getMonth()]} ${a.getDate()}–${b.getDate()}, ${b.getFullYear()}`
+    : `${MON[a.getMonth()]} ${a.getDate()} – ${MON[b.getMonth()]} ${b.getDate()}, ${b.getFullYear()}`;
+
+  // chips
+  const chips = $('chips'); chips.innerHTML = '';
+  for (const m of members){
+    const c = document.createElement('button');
+    c.className = 'chip' + (hidden.has(m.id) ? ' off' : '');
+    c.innerHTML = `<span class="dot" style="background:${m.color}"></span>${esc(m.name)}`;
+    c.title = hidden.has(m.id) ? 'Show ' + m.name : 'Hide ' + m.name;
+    c.onclick = () => { hidden.has(m.id) ? hidden.delete(m.id) : hidden.add(m.id); render(); };
+    chips.appendChild(c);
+  }
+  const mg = document.createElement('button');
+  mg.className = 'chip manage';
+  mg.textContent = members.length ? 'Edit members' : 'Add family members';
+  mg.onclick = openMembers;
+  chips.appendChild(mg);
+
+  // board
+  const board = $('board'); board.innerHTML = '';
+  const today = ymd(new Date());
+  let shown = 0;
+  for (const d of days){
+    const key = ymd(d);
+    const col = document.createElement('div');
+    col.className = 'day' + (key === today ? ' today' : '');
+    col.innerHTML = `<div class="dayhead"><span class="dow">${key === today ? 'Today' : DOW[d.getDay()]}</span><span class="dnum">${d.getDate()}</span></div>`;
+    const list = document.createElement('div'); list.className = 'evlist';
+    for (const ev of events.filter(e => e.date === key)){
+      if (ev.member_id && hidden.has(ev.member_id)) continue;
+      shown++;
+      const m = members.find(x => x.id === ev.member_id);
+      const btn = document.createElement('button');
+      btn.className = 'ev';
+      btn.style.setProperty('--bar', m ? m.color : '#9AA894');
+      const time = ev.start_time ? fmt12(ev.start_time) + (ev.end_time ? '–' + fmt12(ev.end_time) : '') : 'All day';
+      btn.innerHTML = `<div class="t">${time}${m ? ' · ' + esc(m.name) : ''}</div><div class="n">${esc(ev.title)}</div>`;
+      btn.onclick = () => openEvent(ev);
+      list.appendChild(btn);
+    }
+    col.appendChild(list);
+    const add = document.createElement('button');
+    add.className = 'addday'; add.textContent = '+ add';
+    add.onclick = () => openEvent(null, key);
+    col.appendChild(add);
+    board.appendChild(col);
+  }
+  $('empty').hidden = shown > 0;
+}
+
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ---------- event dialog ----------
+function fillWho(sel){
+  const who = $('fWho'); who.innerHTML = '<option value="">Everyone</option>';
+  for (const m of members){
+    const o = document.createElement('option');
+    o.value = m.id; o.textContent = m.name;
+    who.appendChild(o);
+  }
+  who.value = sel || '';
+}
+
+function openEvent(ev, dateKey){
+  editingId = ev ? ev.id : null;
+  $('eventDlgTitle').textContent = ev ? 'Edit event' : 'Add event';
+  $('delBtn').hidden = !ev;
+  fillWho(ev ? ev.member_id : '');
+  $('fTitle').value = ev ? ev.title : '';
+  $('fDate').value = ev ? ev.date : (dateKey || ymd(new Date()));
+  $('fStart').value = ev && ev.start_time ? ev.start_time : '';
+  $('fEnd').value = ev && ev.end_time ? ev.end_time : '';
+  $('fNotes').value = ev && ev.notes ? ev.notes : '';
+  $('err').textContent = '';
+  $('eventDlg').showModal();
+  $('fTitle').focus();
+}
+
+$('eventForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const body = JSON.stringify({
+    title: $('fTitle').value,
+    date: $('fDate').value,
+    member_id: $('fWho').value || null,
+    start_time: $('fStart').value || null,
+    end_time: $('fEnd').value || null,
+    notes: $('fNotes').value || null
+  });
+  try {
+    if (editingId) await api('/api/events/' + editingId, { method:'PUT', body });
+    else await api('/api/events', { method:'POST', body });
+    $('eventDlg').close();
+    await loadEvents(); render();
+  } catch (err){ $('err').textContent = err.message; }
+};
+
+$('delBtn').onclick = async () => {
+  if (!editingId || !confirm('Delete this event?')) return;
+  await api('/api/events/' + editingId, { method:'DELETE' });
+  $('eventDlg').close();
+  await loadEvents(); render();
+};
+$('cancelBtn').onclick = () => $('eventDlg').close();
+
+// ---------- members dialog ----------
+let pickedColor = COLORS[0];
+function openMembers(){
+  const list = $('mlist'); list.innerHTML = '';
+  for (const m of members){
+    const row = document.createElement('div'); row.className = 'mrow';
+    row.innerHTML = `<span class="dot" style="background:${m.color}"></span><span class="nm">${esc(m.name)}</span>`;
+    const rm = document.createElement('button'); rm.textContent = 'Remove';
+    rm.onclick = async () => {
+      if (!confirm(`Remove ${m.name}? Their events stay and switch to “Everyone.”`)) return;
+      await api('/api/members/' + m.id, { method:'DELETE' });
+      hidden.delete(m.id);
+      await loadAll(); openMembers();
+    };
+    row.appendChild(rm);
+    list.appendChild(row);
+  }
+  const sw = $('swatches'); sw.innerHTML = '';
+  const used = new Set(members.map(m => m.color));
+  pickedColor = COLORS.find(c => !used.has(c)) || COLORS[0];
+  for (const c of COLORS){
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'sw' + (c === pickedColor ? ' sel' : '');
+    b.style.background = c; b.setAttribute('aria-label', 'Color ' + c);
+    b.onclick = () => { pickedColor = c; [...sw.children].forEach(x => x.classList.remove('sel')); b.classList.add('sel'); };
+    sw.appendChild(b);
+  }
+  $('mName').value = '';
+  $('memberDlg').showModal();
+}
+
+$('mAddBtn').onclick = async () => {
+  const name = $('mName').value.trim();
+  if (!name) return $('mName').focus();
+  await api('/api/members', { method:'POST', body: JSON.stringify({ name, color: pickedColor }) });
+  await loadAll(); openMembers();
+  $('mName').focus();
+};
+$('mCloseBtn').onclick = () => { $('memberDlg').close(); render(); };
+
+// ---------- nav ----------
+$('prevBtn').onclick = () => { weekStart.setDate(weekStart.getDate() - 7); loadEvents().then(render); };
+$('nextBtn').onclick = () => { weekStart.setDate(weekStart.getDate() + 7); loadEvents().then(render); };
+$('todayBtn').onclick = () => { weekStart = startOfWeek(new Date()); loadEvents().then(render); };
+$('addBtn').onclick = () => openEvent(null);
+
+// ---------- passcode ----------
+$('lockForm').onsubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const r = await fetch('/api/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ password: $('lockPass').value })
+    });
+    if (!r.ok) { $('lockErr').textContent = 'Wrong passcode — try again.'; return; }
+    $('lock').classList.remove('on');
+    await loadAll(); render();
+  } catch { $('lockErr').textContent = 'Could not reach the server.'; }
+};
+
+// ---------- data ----------
+async function loadEvents(){
+  const from = ymd(weekStart);
+  const end = new Date(weekStart); end.setDate(end.getDate() + 6);
+  events = await api(`/api/events?from=${from}&to=${ymd(end)}`);
+}
+async function loadAll(){ members = await api('/api/members'); await loadEvents(); }
+
+(async function init(){
+  try {
+    const s = await api('/api/session');
+    if (s.locked && !s.authed) { $('lock').classList.add('on'); return; }
+    await loadAll(); render();
+  } catch (e) { /* lock overlay already shown on 401 */ }
+})();
+</script>
+</body>
+</html>
