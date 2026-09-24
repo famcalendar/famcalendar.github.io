@@ -8,8 +8,8 @@
     "dev": "node --watch server.js"
   },
   "engines": {
-    "node": ">=18"
-  },
+  "node": "22.x"
+},
   "dependencies": {
     "better-sqlite3": "^11.3.0",
     "express": "^4.19.2",
